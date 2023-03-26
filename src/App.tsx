@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC, useContext, useEffect } from "react";
+import { Context } from "./index";
+import { observer } from "mobx-react-lite";
+import LoginForm from "./components/LoginForm/LoginForm";
+import LayOut from "./components/LayOut";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App: FC = () => {
+	const { store } = useContext(Context);
+	useEffect(() => {
+		if (localStorage.getItem("token")) {
+			store.checkAuth();
+		}
+	}, [store]);
+	if (store.isLoading) {
+		return (
+			<div className="preloader flex-column justify-content-center align-items-center">
+				<img
+					className="animation__shake"
+					src="dist/img/AdminLTELogo.png"
+					alt="AdminLTELogo"
+					height={60}
+					width={60}
+				/>
+			</div>
+		);
+	}
+	if (!store.isAuth) {
+		return <LoginForm />;
+	}
+	return <LayOut />;
+};
 
-export default App;
+export default observer(App);
