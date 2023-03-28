@@ -17,12 +17,14 @@ import {
   MenuItem,
   Button,
   Box,
-	Alert,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
 export interface SimpleDialogProps {
   onClose: () => void;
+	onUpdate: () => void;
   open: boolean;
   email: string;
   username: string;
@@ -35,7 +37,7 @@ interface AlertMessage {
 }
 
 const AddRoleForm: FC<SimpleDialogProps> = (props) => {
-  const { onClose, open, username, email } = props;
+  const { onClose, onUpdate, open, username, email } = props;
   const { store } = useContext(Context);
   const [newRole, setNewRole] = useState("");
   const [roles, setRoles] = useState<IRole[]>([]);
@@ -59,18 +61,23 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
     setNewRole(event.target.value as string);
   };
 
-  const addRole = (email: string, role: string) => {
+  const addUserRole = (email: string, role: string) => {
     const res = store.addUserRole(email, role);
     res.then((result) => {
+			onUpdate();
       setAlertMsg(result);
     });
   };
 
   const clearForm = () => {
     onClose();
-		setAlertMsg({ msg: "", err: {} });
+    setAlertMsg({ msg: "", err: {} });
     setNewRole("");
     setFormValid(false);
+  };
+
+  const clearAlert = () => {
+    setAlertMsg({ msg: "", err: {} });
   };
 
   return (
@@ -92,9 +99,20 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
       </DialogTitle>
       <DialogContent>
         {alertMsg?.msg ? (
-          <Alert sx={{ mb: 1 }} severity={alertMsg?.state as AlertColor}>
-            {alertMsg?.msg}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={10000}
+            onClose={() => clearAlert()}
+          >
+            <Alert
+              sx={{ mb: 1 }}
+              severity={alertMsg?.state as AlertColor}
+              variant="filled"
+              onClose={() => clearAlert()}
+            >
+              {alertMsg?.msg}
+            </Alert>
+          </Snackbar>
         ) : (
           ""
         )}
@@ -124,7 +142,7 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
           <Button
             variant="contained"
             disabled={!formValid}
-            onClick={() => addRole(email, newRole)}
+            onClick={() => addUserRole(email, newRole)}
           >
             Добавить
           </Button>

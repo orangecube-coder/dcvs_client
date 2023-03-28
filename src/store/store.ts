@@ -79,7 +79,22 @@ export default class Store {
 	}
 	async addUserRole(email: string, role: string) {
 		try {
-			const response = await UserService.addRole(email, role);
+			const response = await UserService.addUserRole(email, role);
+			return response.data.message;
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				const error: string = err.response?.data.message
+				return {
+					state: "error",
+					msg: error,
+					err
+				}
+			}
+		}
+	}
+	async delUserRole(email: string, role: string) {
+		try {
+			const response = await UserService.delUserRole(email, role);
 			return response.data.message;
 		} catch (err) {
 			if (err instanceof AxiosError) {

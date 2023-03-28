@@ -11,7 +11,10 @@ export default class UserService {
 	static async fetchAllRoles(): Promise<AxiosResponse<IRole[]>> {
 		return $api.get<IRole[]>("/roles");
 	}
-	static async addRole(email: string, role: string): Promise<AxiosResponse<AuthResponse>> {
-		return $api.post<AuthResponse>("/role", {email, role});
+	static async addUserRole(email: string, role: string): Promise<AxiosResponse<AuthResponse>> {
+		return $api.post<AuthResponse>("/adduserrole", {email, role});
+	}
+	static async delUserRole(email: string, role: string): Promise<AxiosResponse<AuthResponse>> {
+		return $api.post<AuthResponse>("/deluserrole", {email, role});
 	}
 }

@@ -1,9 +1,11 @@
-import { FC, useEffect, useState, Fragment } from "react";
+import { FC, useEffect, useState, Fragment, useContext } from "react";
 import { IUser } from "../../../models/IUser";
 import UserService from "../../../services/UserService";
+import { Context } from "../../../index";
 import AddUserForm from "./AddUserForm";
 import AddRoleForm from "./AddRoleForm";
 import moment from "moment-timezone";
+import { AlertColor } from "@mui/material";
 import {
   Table,
   TableRow,
@@ -15,6 +17,8 @@ import {
   Collapse,
   Button,
   Typography,
+	Snackbar,
+	Alert,
 } from "@mui/material";
 import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
@@ -26,10 +30,30 @@ export interface SimpleProps {
   user: IUser;
 }
 
+interface AlertMessage {
+  state?: string;
+  msg: string;
+  err: any;
+}
+
 const FoldingItem: FC<SimpleProps> = (props) => {
-	const { user, getUpdate } = props;
+  const { user, getUpdate } = props;
+  const { store } = useContext(Context);
   const [open, setOpen] = useState(false);
-	const [openAddRole, setOpenAddRole] = useState(false);
+  const [openAddRole, setOpenAddRole] = useState(false);
+	const [alertMsg, setAlertMsg] = useState<AlertMessage>();
+
+  async function delUserRole(email: string, role: string) {
+    const res = store.delUserRole(email, role);
+		res.then((result) => {
+			getUpdate();
+      setAlertMsg(result);
+    });
+  }
+
+	const clearAlert = () => {
+    setAlertMsg({ msg: "", err: {} });
+  };
 
   return (
     <Fragment key={user.email}>
@@ -45,7 +69,7 @@ const FoldingItem: FC<SimpleProps> = (props) => {
         </TableCell>
         <TableCell component="th" scope="row">
           <Typography variant="subtitle2">
-						{user.lastName} {user.firstName}
+            {user.lastName} {user.firstName}
           </Typography>
         </TableCell>
         <TableCell
@@ -112,7 +136,30 @@ const FoldingItem: FC<SimpleProps> = (props) => {
                         {role}
                       </TableCell>
                       <TableCell component="th" scope="row">
-                        <Button size="small" color="error" variant="outlined">
+                        {alertMsg?.msg ? (
+                          <Snackbar
+                            open={open}
+                            autoHideDuration={10000}
+                            onClose={() => clearAlert()}
+                          >
+                            <Alert
+                              sx={{ mb: 1 }}
+                              severity={alertMsg?.state as AlertColor}
+                              variant="filled"
+                              onClose={() => clearAlert()}
+                            >
+                              {alertMsg?.msg}
+                            </Alert>
+                          </Snackbar>
+                        ) : (
+                          ""
+                        )}
+                        <Button
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={() => delUserRole(user.email, role)}
+                        >
                           Удалить
                         </Button>
                       </TableCell>
@@ -125,22 +172,24 @@ const FoldingItem: FC<SimpleProps> = (props) => {
                 size="small"
                 color="primary"
                 variant="outlined"
-								onClick={() => {
-									setOpenAddRole(true)
-								}}
+                onClick={() => {
+                  setOpenAddRole(true);
+                }}
                 sx={{ mt: 1 }}
               >
                 Добавить роль
               </Button>
               <AddRoleForm
-								key={user._id}
+                key={user._id}
                 open={openAddRole}
-								email={user.email}
-								username={user.lastName + " " + user.firstName}
+                email={user.email}
+                username={user.lastName + " " + user.firstName}
                 onClose={() => {
                   setOpenAddRole(false);
-                  getUpdate();
                 }}
+								onUpdate={() => {
+									getUpdate();
+								}}
               />
             </Box>
           </Collapse>
@@ -153,7 +202,7 @@ const FoldingItem: FC<SimpleProps> = (props) => {
 const UserTable: FC = () => {
   const [openAddUser, setOpenAddUser] = useState(false);
   const [users, setUsers] = useState<IUser[]>([]);
-  async function getUsers() {
+  const getUsers = async () => {
     try {
       const response = await UserService.fetchUsers();
       setUsers(response.data);
@@ -189,7 +238,11 @@ const UserTable: FC = () => {
         </TableHead>
         <TableBody>
           {users.map((user) => (
-            <FoldingItem key={user.email} user={user} getUpdate={() => getUsers()}/>
+            <FoldingItem
+              key={user.email}
+              user={user}
+              getUpdate={() => getUsers()}
+            />
           ))}
         </TableBody>
       </Table>
@@ -208,8 +261,10 @@ const UserTable: FC = () => {
         open={openAddUser}
         onClose={() => {
           setOpenAddUser(false);
-          getUsers();
         }}
+				onUpdate={() => {
+					getUsers();
+				}}
       />
     </Fragment>
   );

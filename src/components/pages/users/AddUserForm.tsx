@@ -21,11 +21,13 @@ import {
   FormControlLabel,
   Switch,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
 export interface SimpleDialogProps {
   onClose: () => void;
+	onUpdate: () => void;
   open: boolean;
 }
 
@@ -36,7 +38,7 @@ interface AlertMessage {
 }
 
 const AddUserForm: FC<SimpleDialogProps> = (props) => {
-  const { onClose, open } = props;
+  const { onClose, onUpdate, open } = props;
   const { store } = useContext(Context);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -135,6 +137,7 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
   ) => {
     const res = store.registration(firstName, lastName, email, password);
     res.then((result) => {
+			onUpdate();
       setAlertMsg(result);
     });
   };
@@ -147,6 +150,10 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
     setEmail("");
     setAlertMsg({ msg: "", err: {} });
     setFormValid(false);
+  };
+
+  const clearAlert = () => {
+    setAlertMsg({ msg: "", err: {} });
   };
 
   return (
@@ -168,9 +175,20 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
       </DialogTitle>
       <DialogContent>
         {alertMsg?.msg ? (
-          <Alert sx={{ mb: 1 }} severity={alertMsg?.state as AlertColor}>
-            {alertMsg?.msg}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={10000}
+            onClose={() => clearAlert()}
+          >
+            <Alert
+              sx={{ mb: 1 }}
+              severity={alertMsg?.state as AlertColor}
+              onClose={() => clearAlert()}
+							variant="filled"
+            >
+              {alertMsg?.msg}
+            </Alert>
+          </Snackbar>
         ) : (
           ""
         )}
