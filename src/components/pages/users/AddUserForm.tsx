@@ -11,13 +11,13 @@ import { Context } from "../../../index";
 import {
   Dialog,
   DialogTitle,
+  DialogActions,
   IconButton,
   TextField,
   Grid,
   DialogContent,
   DialogContentText,
   Button,
-  Box,
   FormControlLabel,
   Switch,
   Alert,
@@ -174,8 +174,8 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
         ) : (
           ""
         )}
-        <DialogContentText variant="body2" sx={{ mb: 1 }}>
-          Новый пользователь, по умолчанию, будет добавлен в группу `USERS`.
+        <DialogContentText sx={{ mb: 1 }}>
+          Новому пользователю, по умолчанию, будет установлена роль `USERS`.
         </DialogContentText>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
@@ -265,16 +265,17 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
           label="Требовать активацию"
           sx={{ mt: 1 }}
         />
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+
+        <DialogActions sx={{ mt: 2, ml: 1 }}>
+          <Button onClick={() => clearForm()}>Отмена</Button>
           <Button
             variant="contained"
             disabled={!formValid}
             onClick={() => registration(firstName, lastName, email, password)}
-            sx={{ mt: 3, ml: 1 }}
           >
             Добавить
           </Button>
-        </Box>
+        </DialogActions>
       </DialogContent>
     </Dialog>
   );

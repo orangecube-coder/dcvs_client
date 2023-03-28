@@ -4,6 +4,7 @@ import { API_URL } from "../http";
 import { IUser } from "../models/IUser";
 import { AuthResponse } from "../models/response/AuthResponse";
 import AuthService from "../services/AuthService";
+import UserService from "../services/UserService";
 
 export default class Store {
 	user = {} as IUser;
@@ -74,6 +75,21 @@ export default class Store {
 			console.log(error);
 		} finally {
 			this.setLoading(false);
+		}
+	}
+	async addUserRole(email: string, role: string) {
+		try {
+			const response = await UserService.addRole(email, role);
+			return response.data.message;
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				const error: string = err.response?.data.message
+				return {
+					state: "error",
+					msg: error,
+					err
+				}
+			}
 		}
 	}
 }

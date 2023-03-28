@@ -2,6 +2,7 @@ import { FC, useEffect, useState, Fragment } from "react";
 import { IUser } from "../../../models/IUser";
 import UserService from "../../../services/UserService";
 import AddUserForm from "./AddUserForm";
+import AddRoleForm from "./AddRoleForm";
 import moment from "moment-timezone";
 import {
   Table,
@@ -20,8 +21,15 @@ import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
 } from "@mui/icons-material";
 
-const FoldingItem: FC<IUser> = (user) => {
+export interface SimpleProps {
+  getUpdate: () => void;
+  user: IUser;
+}
+
+const FoldingItem: FC<SimpleProps> = (props) => {
+	const { user, getUpdate } = props;
   const [open, setOpen] = useState(false);
+	const [openAddRole, setOpenAddRole] = useState(false);
 
   return (
     <Fragment key={user.email}>
@@ -37,15 +45,27 @@ const FoldingItem: FC<IUser> = (user) => {
         </TableCell>
         <TableCell component="th" scope="row">
           <Typography variant="subtitle2">
-						{user.firstName} {user.lastName}
+						{user.lastName} {user.firstName}
           </Typography>
         </TableCell>
-        <TableCell component="th" scope="row" align="right" sx={{display: { xs: 'none', sm: 'table-cell' }}}>
-          <Typography color={	user.isActivated ? "text.primary" : "text.disabled"	}>
-						{user.email}
-					</Typography>
+        <TableCell
+          component="th"
+          scope="row"
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          <Typography
+            color={user.isActivated ? "text.primary" : "text.disabled"}
+          >
+            {user.email}
+          </Typography>
         </TableCell>
-        <TableCell component="th" scope="row" align="right" sx={{display: { xs: 'none', sm: 'none', md: 'table-cell' }}}>
+        <TableCell
+          component="th"
+          scope="row"
+          align="right"
+          sx={{ display: { xs: "none", sm: "none", md: "table-cell" } }}
+        >
           {moment(user.updatedAt)
             .tz("Europe/Moscow")
             .format("HH:mm DD.MM.YYYY")}
@@ -60,20 +80,23 @@ const FoldingItem: FC<IUser> = (user) => {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-							<Box sx={{display: { xs: 'block', sm: 'none' }, ml: 2, mt: 1}}>
-								<Typography variant="subtitle2">Email: </Typography>
-								<Typography  color={	user.isActivated ? "text.primary" : "text.disabled"	} variant="body2">
-									{user.email}
-								</Typography>
-							</Box>
-							<Box sx={{display: { sm: 'block', md: 'none' }, ml: 2, mt: 1}}>
-								<Typography variant="subtitle2">Последний вход: </Typography>
-								<Typography variant="body2">
-									{moment(user.updatedAt)
-										.tz("Europe/Moscow")
-										.format("HH:mm DD.MM.YYYY")}
-								</Typography>
-							</Box>
+              <Box sx={{ display: { xs: "block", sm: "none" }, ml: 2, mt: 1 }}>
+                <Typography variant="subtitle2">Email: </Typography>
+                <Typography
+                  color={user.isActivated ? "text.primary" : "text.disabled"}
+                  variant="body2"
+                >
+                  {user.email}
+                </Typography>
+              </Box>
+              <Box sx={{ display: { sm: "block", md: "none" }, ml: 2, mt: 1 }}>
+                <Typography variant="subtitle2">Последний вход: </Typography>
+                <Typography variant="body2">
+                  {moment(user.updatedAt)
+                    .tz("Europe/Moscow")
+                    .format("HH:mm DD.MM.YYYY")}
+                </Typography>
+              </Box>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
@@ -102,10 +125,23 @@ const FoldingItem: FC<IUser> = (user) => {
                 size="small"
                 color="primary"
                 variant="outlined"
+								onClick={() => {
+									setOpenAddRole(true)
+								}}
                 sx={{ mt: 1 }}
               >
                 Добавить роль
               </Button>
+              <AddRoleForm
+								key={user._id}
+                open={openAddRole}
+								email={user.email}
+								username={user.lastName + " " + user.firstName}
+                onClose={() => {
+                  setOpenAddRole(false);
+                  getUpdate();
+                }}
+              />
             </Box>
           </Collapse>
         </TableCell>
@@ -136,14 +172,24 @@ const UserTable: FC = () => {
           <TableRow>
             <TableCell />
             <TableCell align="left">Имя</TableCell>
-            <TableCell align="right" sx={{display: { xs: 'none', sm: 'table-cell' }}}>Email</TableCell>
-            <TableCell align="right" sx={{display: { xs: 'none', sm: 'none', md: 'table-cell' }}}>Последний вход</TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              Email
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "none", md: "table-cell" } }}
+            >
+              Последний вход
+            </TableCell>
             <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>
           {users.map((user) => (
-            <FoldingItem key={user.email} {...user} />
+            <FoldingItem key={user.email} user={user} getUpdate={() => getUsers()}/>
           ))}
         </TableBody>
       </Table>
