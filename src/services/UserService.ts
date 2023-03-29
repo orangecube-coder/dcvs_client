@@ -12,9 +12,12 @@ export default class UserService {
 		return $api.get<IRole[]>("/roles");
 	}
 	static async addUserRole(email: string, role: string): Promise<AxiosResponse<AuthResponse>> {
-		return $api.post<AuthResponse>("/adduserrole", {email, role});
+		return $api.post<AuthResponse>("/users/addrole", {email, role});
 	}
 	static async delUserRole(email: string, role: string): Promise<AxiosResponse<AuthResponse>> {
-		return $api.post<AuthResponse>("/deluserrole", {email, role});
+		return $api.post<AuthResponse>("/users/delrole", {email, role});
+	}
+	static async addUser(firstName: string, lastName: string, email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
+		return $api.post<AuthResponse>("/users/add", {firstName, lastName, email, password});
 	}
 }

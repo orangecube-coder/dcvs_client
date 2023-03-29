@@ -129,13 +129,13 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
     setPasswordDirty(true);
   };
 
-  const registration = (
+  const addUser = (
     firstName: string,
     lastName: string,
     email: string,
     password: string
   ) => {
-    const res = store.registration(firstName, lastName, email, password);
+    const res = store.addUser(firstName, lastName, email, password);
     res.then((result) => {
 			onUpdate();
       setAlertMsg(result);
@@ -289,7 +289,7 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
           <Button
             variant="contained"
             disabled={!formValid}
-            onClick={() => registration(firstName, lastName, email, password)}
+            onClick={() => addUser(firstName, lastName, email, password)}
           >
             Добавить
           </Button>

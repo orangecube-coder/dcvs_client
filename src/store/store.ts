@@ -39,9 +39,9 @@ export default class Store {
 			}
 		}
 	}
-	async registration(firstName: string, lastName: string, email: string, password: string) {
+	async addUser(firstName: string, lastName: string, email: string, password: string) {
 		try {
-			const response = await AuthService.registration(firstName, lastName, email, password);
+			const response = await UserService.addUser(firstName, lastName, email, password);
 			return response.data.message;
 		} catch (err) {
 			if (err instanceof AxiosError) {
