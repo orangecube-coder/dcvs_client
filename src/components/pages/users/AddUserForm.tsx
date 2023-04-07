@@ -6,7 +6,6 @@ import {
   useEffect,
   useContext,
 } from "react";
-import { AlertColor } from "@mui/material";
 import { Context } from "../../../index";
 import {
   Dialog,
@@ -20,21 +19,13 @@ import {
   Button,
   FormControlLabel,
   Switch,
-  Alert,
-  Snackbar,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
 export interface SimpleDialogProps {
   onClose: () => void;
-	onUpdate: () => void;
+  onUpdate: () => void;
   open: boolean;
-}
-
-interface AlertMessage {
-  state?: string;
-  msg: string;
-  err: any;
 }
 
 const AddUserForm: FC<SimpleDialogProps> = (props) => {
@@ -61,7 +52,6 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
     "Поле 'Пароль' не может быть пустым"
   );
   const [formValid, setFormValid] = useState(false);
-  const [alertMsg, setAlertMsg] = useState<AlertMessage>();
 
   const firstNameHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setFirstName(e.target.value);
@@ -135,25 +125,19 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
     email: string,
     password: string
   ) => {
-    const res = store.addUser(firstName, lastName, email, password);
-    res.then((result) => {
-			onUpdate();
-      setAlertMsg(result);
+    store.addUser(firstName, lastName, email, password).then(() => {
+      onUpdate();
     });
   };
 
   const clearForm = () => {
     onClose();
+    store.clearAlertMsg();
     setFirstName("");
     setLastName("");
     setPassword("");
     setEmail("");
-    setAlertMsg({ msg: "", err: {} });
     setFormValid(false);
-  };
-
-  const clearAlert = () => {
-    setAlertMsg({ msg: "", err: {} });
   };
 
   return (
@@ -174,24 +158,6 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        {alertMsg?.msg ? (
-          <Snackbar
-            open={open}
-            autoHideDuration={10000}
-            onClose={() => clearAlert()}
-          >
-            <Alert
-              sx={{ mb: 1 }}
-              severity={alertMsg?.state as AlertColor}
-              onClose={() => clearAlert()}
-							variant="filled"
-            >
-              {alertMsg?.msg}
-            </Alert>
-          </Snackbar>
-        ) : (
-          ""
-        )}
         <DialogContentText sx={{ mb: 1 }}>
           Новому пользователю, по умолчанию, будет установлена роль `USERS`.
         </DialogContentText>

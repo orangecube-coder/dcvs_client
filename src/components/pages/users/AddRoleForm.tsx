@@ -2,7 +2,6 @@ import { FC, useState, useEffect, useContext } from "react";
 import UserService from "../../../services/UserService";
 import { IRole } from "../../../models/IRole";
 import { Context } from "../../../index";
-import { AlertColor } from "@mui/material";
 import {
   Dialog,
   DialogTitle,
@@ -17,23 +16,15 @@ import {
   MenuItem,
   Button,
   Box,
-  Alert,
-  Snackbar,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
 export interface SimpleDialogProps {
   onClose: () => void;
-	onUpdate: () => void;
+  onUpdate: () => void;
   open: boolean;
   email: string;
   username: string;
-}
-
-interface AlertMessage {
-  state?: string;
-  msg: string;
-  err: any;
 }
 
 const AddRoleForm: FC<SimpleDialogProps> = (props) => {
@@ -42,7 +33,6 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
   const [newRole, setNewRole] = useState("");
   const [roles, setRoles] = useState<IRole[]>([]);
   const [formValid, setFormValid] = useState(false);
-  const [alertMsg, setAlertMsg] = useState<AlertMessage>();
 
   async function getAllRoles() {
     try {
@@ -62,22 +52,14 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
   };
 
   const addUserRole = (email: string, role: string) => {
-    const res = store.addUserRole(email, role);
-    res.then((result) => {
-			onUpdate();
-      setAlertMsg(result);
-    });
+    store.addUserRole(email, role).then(() => onUpdate());
   };
 
   const clearForm = () => {
     onClose();
-    setAlertMsg({ msg: "", err: {} });
+    store.clearAlertMsg();
     setNewRole("");
     setFormValid(false);
-  };
-
-  const clearAlert = () => {
-    setAlertMsg({ msg: "", err: {} });
   };
 
   return (
@@ -98,24 +80,6 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        {alertMsg?.msg ? (
-          <Snackbar
-            open={open}
-            autoHideDuration={10000}
-            onClose={() => clearAlert()}
-          >
-            <Alert
-              sx={{ mb: 1 }}
-              severity={alertMsg?.state as AlertColor}
-              variant="filled"
-              onClose={() => clearAlert()}
-            >
-              {alertMsg?.msg}
-            </Alert>
-          </Snackbar>
-        ) : (
-          ""
-        )}
         <DialogContentText id="alert-dialog-description">
           Укажите необходимую роль для пользователя {username} ({email})
         </DialogContentText>
