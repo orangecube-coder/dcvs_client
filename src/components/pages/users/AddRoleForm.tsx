@@ -57,7 +57,7 @@ const AddRoleForm: FC<SimpleDialogProps> = (props) => {
 
   const clearForm = () => {
     onClose();
-    store.clearAlertMsg();
+    // store.clearAlertMsg();
     setNewRole("");
     setFormValid(false);
   };

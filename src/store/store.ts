@@ -15,7 +15,7 @@ interface AlertMessage {
 export default class Store {
   user = {} as IUser;
   isAuth = false;
-  isLoading = true;
+  isLoading = false;
   isFetchError = false;
   alertMsg: AlertMessage = {
     msg: "",
