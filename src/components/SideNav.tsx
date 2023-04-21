@@ -12,7 +12,12 @@ import {
 	ManageAccounts as ManageAccountsIcon, 
 } from '@mui/icons-material';
 
-const SideNav: FC = () => {
+interface SimpleProps {
+	open: boolean;
+}
+
+const SideNav: FC<SimpleProps> = (props) => {
+	const { open } = props;
 	const navigate = useNavigate();
 	const location = useLocation();
 	const listItems = [
@@ -28,16 +33,18 @@ const SideNav: FC = () => {
 		},
 	]
 	return (
-		<List component="nav" dense>
+		<List component="nav">
 			{listItems.map((item, index) => {
 				const {label, path, icon} = item;
 				return (
 					<ListItemButton 
+						sx={{ height: 38 }}
+						disableGutters
 						key={index} 
 						selected={location.pathname === path} 
 						onClick={() => navigate(path)}>
-							{icon && <ListItemIcon>{icon}</ListItemIcon>}
-							<ListItemText primary={label} />
+							{icon && <ListItemIcon sx={{ justifyContent: 'center' }}>{icon}</ListItemIcon>}
+							{open && <ListItemText primary={label} />}
 					</ListItemButton>
 				);
 			})}

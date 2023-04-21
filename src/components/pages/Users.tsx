@@ -6,8 +6,8 @@ import AlertMsg from "./AlertMsg";
 const Users: FC = () => {
   return (
     <Fragment>
-      <Grid container spacing={3}>
-        <Grid item xs={12} overflow="hidden">
+      <Grid container spacing={1}>
+        <Grid item xs={8} overflow="hidden">
           <AlertMsg />
           <Paper
             sx={{

@@ -12,6 +12,7 @@ const App: FC = () => {
 			store.checkAuth();
 		}
 	}, [store]);
+	
 	if (store.isLoading) {
 		return (
 			<Box sx={{ display: 'flex' }}>

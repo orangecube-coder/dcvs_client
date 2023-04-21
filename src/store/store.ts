@@ -15,7 +15,7 @@ interface AlertMessage {
 export default class Store {
   user = {} as IUser;
   isAuth = false;
-  isLoading = false;
+  isLoading = true;
   isFetchError = false;
   alertMsg: AlertMessage = {
     msg: "",
@@ -71,20 +71,20 @@ export default class Store {
         email,
         password
       );
-			runInAction(() => {
+      runInAction(() => {
         this.alertMsg = { ...response.data.message };
       });
       return true;
     } catch (err) {
       if (err instanceof AxiosError) {
         const error: string = err.response?.data.message;
-				runInAction(() => {
+        runInAction(() => {
           this.alertMsg = {
             state: "error",
             msg: error,
             err,
           };
-				});
+        });
         return false;
       }
     }
@@ -138,20 +138,20 @@ export default class Store {
   async delUserRole(email: string, role: string) {
     try {
       const response = await UserService.delUserRole(email, role);
-			runInAction(() => {
+      runInAction(() => {
         this.alertMsg = { ...response.data.message };
       });
       return true;
     } catch (err) {
       if (err instanceof AxiosError) {
         const error: string = err.response?.data.message;
-				runInAction(() => {
+        runInAction(() => {
           this.alertMsg = {
             state: "error",
             msg: error,
             err,
           };
-				});
+        });
         return false;
       }
     }
@@ -159,20 +159,20 @@ export default class Store {
   async delUser(email: string) {
     try {
       const response = await UserService.delUser(email);
-			runInAction(() => {
+      runInAction(() => {
         this.alertMsg = { ...response.data.message };
       });
       return true;
     } catch (err) {
       if (err instanceof AxiosError) {
         const error: string = err.response?.data.message;
-				runInAction(() => {
+        runInAction(() => {
           this.alertMsg = {
             state: "error",
             msg: error,
             err,
           };
-				});
+        });
         return false;
       }
     }

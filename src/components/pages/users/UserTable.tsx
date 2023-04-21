@@ -77,7 +77,7 @@ const FoldingItem: FC<SimpleProps> = (props) => {
           align="right"
           sx={{ display: { xs: "none", sm: "none", md: "table-cell" } }}
         >
-          {moment(user.updatedAt)
+          {moment(user.lastLogin)
             .tz("Europe/Moscow")
             .format("HH:mm DD.MM.YYYY")}
         </TableCell>
