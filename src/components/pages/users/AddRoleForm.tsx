@@ -1,14 +1,12 @@
-import { FC, useState, useEffect, useContext } from "react";
-import UserService from "../../../services/UserService";
-import { IRole } from "../../../models/IRole";
-import { Context } from "../../../index";
+import { FC, useState, useContext } from "react";
+import { IUser } from "../../../store/Interfaces";
+import { Context } from "../../..";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
-  IconButton,
+  Avatar,
   FormControl,
   InputLabel,
   Select,
@@ -16,98 +14,78 @@ import {
   MenuItem,
   Button,
   Box,
+  Stack,
+  Typography,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { GroupAdd as GroupAddIcon } from "@mui/icons-material";
 
-export interface SimpleDialogProps {
+export interface DialogProps {
   onClose: () => void;
-  onUpdate: () => void;
   open: boolean;
-  email: string;
-  username: string;
+  user: IUser;
 }
 
-const AddRoleForm: FC<SimpleDialogProps> = (props) => {
-  const { onClose, onUpdate, open, username, email } = props;
-  const { store } = useContext(Context);
-  const [newRole, setNewRole] = useState("");
-  const [roles, setRoles] = useState<IRole[]>([]);
-  const [formValid, setFormValid] = useState(false);
-
-  async function getAllRoles() {
-    try {
-      const response = await UserService.fetchAllRoles();
-      setRoles(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  useEffect(() => {
-    getAllRoles();
-  }, []);
+const AddRoleForm: FC<DialogProps> = (props) => {
+  const { onClose, open, user } = props;
+  const { userStore } = useContext(Context);
+  const [role, setRole] = useState("");
+  const [formValid, setFormValid] = useState<boolean>(false);
 
   const handleChange = (event: SelectChangeEvent) => {
     setFormValid(true);
-    setNewRole(event.target.value as string);
+    setRole(event.target.value);
   };
 
-  const addUserRole = (email: string, role: string) => {
-    store.addUserRole(email, role).then(() => onUpdate());
-  };
-
-  const clearForm = () => {
-    onClose();
-    // store.clearAlertMsg();
-    setNewRole("");
-    setFormValid(false);
+  const handleAdd = async () => {
+    const result = await userStore.addUserRole(user, JSON.parse(role));
+		if (result) onClose();
   };
 
   return (
-    <Dialog open={open} maxWidth="xs">
-      <DialogTitle>
-        Добавить роль
-        <IconButton
-          aria-label="close"
-          onClick={() => clearForm()}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+    <Dialog onClose={onClose} open={open} maxWidth="xs">
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Укажите необходимую роль для пользователя {username} ({email})
+        <DialogContentText component="div">
+          <Stack spacing={2} direction="row" alignItems="center">
+            <Avatar>
+              <GroupAddIcon />
+            </Avatar>
+            <Typography component="span">
+              Укажите новую роль для пользователя:
+              <Typography sx={{ fontWeight: "bold" }} component="span">
+                {" "}
+                {user.name}
+              </Typography>
+            </Typography>
+          </Stack>
         </DialogContentText>
         <Box>
-          <FormControl fullWidth sx={{ mt: 2 }} variant="standard">
+          <FormControl fullWidth sx={{ mt: 3 }}>
             <InputLabel id="role-select-label">Роль</InputLabel>
             <Select
               labelId="role-select-label"
               id="role-select"
-              value={newRole}
+              value={role || ""}
               label="Роль"
               onChange={handleChange}
+							autoFocus
             >
-              {roles.map((role) => (
-                <MenuItem key={role._id} value={role.value}>
-                  {role.value}
+              {userStore.roles.map((roleItem) => (
+                <MenuItem
+                  key={roleItem._id}
+                  value={JSON.stringify({
+                    _id: roleItem._id,
+                    value: roleItem.value,
+                  })}
+                >
+                  {roleItem.value}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Box>
-        <DialogActions sx={{ mt: 3, ml: 1 }}>
-          <Button onClick={() => clearForm()}>Отмена</Button>
-          <Button
-            variant="contained"
-            disabled={!formValid}
-            onClick={() => addUserRole(email, newRole)}
-          >
+        <DialogActions sx={{ mt: 2, ml: 1 }}>
+          <Button onClick={onClose}>Отмена</Button>
+          <Button variant="contained" disabled={!formValid} onClick={handleAdd}>
             Добавить
           </Button>
         </DialogActions>

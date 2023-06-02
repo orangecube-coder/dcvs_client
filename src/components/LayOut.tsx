@@ -1,11 +1,13 @@
 import { FC, useState, useEffect, useContext } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Context } from "../index";
-import { Route, Routes, Outlet, Navigate, useLocation } from "react-router-dom";
+import { Context } from "../";
+import { Route, Routes } from "react-router-dom";
 import Users from "./pages/Users";
 import Index from "./pages/Index";
 import DashBoard from "./pages/DashBoard";
 import NotFound from "./pages/NotFound";
+import Journal from "./pages/Journal";
+import { AuthPreloader, UsersPreloader, JournalPreloader } from "./Preloaders";
 import {
   Box,
   AppBar,
@@ -25,30 +27,15 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import SideNav from "./SideNav";
+import AlertMsg from "./pages/AlertMsg";
 
 const drawerWidth = 240;
 const mdTheme = createTheme();
 
-interface SimpleAuthProps {
-  allowedRoles: string[];
-}
-
-const Auth: FC<SimpleAuthProps> = (props) => {
-  const { allowedRoles } = props;
-  const { store } = useContext(Context);
-  const location = useLocation();
-
-  return allowedRoles.find((role) => store.user.roles.includes(role)) ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/404" state={{ from: location }} replace />
-  );
-};
-
 const LayOut: FC = () => {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState(false);
-  const { store } = useContext(Context);
+  const { authStore } = useContext(Context);
 
   useEffect(() => {
     const handleResize = (event: any) => {
@@ -66,6 +53,7 @@ const LayOut: FC = () => {
 
   return (
     <ThemeProvider theme={mdTheme}>
+      <AlertMsg />
       <Box sx={{ display: "flex" }}>
         <AppBar
           position="absolute"
@@ -105,7 +93,7 @@ const LayOut: FC = () => {
             >
               {/* {mode ? "True" : "False"} */}
             </Typography>
-            <IconButton color="inherit" onClick={() => store.logout()}>
+            <IconButton color="inherit" onClick={() => authStore.logout()}>
               <LogoutIcon />
             </IconButton>
           </Toolbar>
@@ -135,13 +123,10 @@ const LayOut: FC = () => {
               px: [1],
             }}
           >
-            <Avatar>
-              {store.user.firstName[0]}
-              {store.user.lastName[0]}
-            </Avatar>
+            <Avatar>{authStore.user.name[0]}</Avatar>
             {open ? (
               <Typography noWrap={true} variant="h6" sx={{ mx: 1 }}>
-                {store.user.firstName} {store.user.lastName}
+                {authStore.user.name}
               </Typography>
             ) : (
               ""
@@ -172,8 +157,13 @@ const LayOut: FC = () => {
               <Route path="/404" element={<NotFound />} />
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<DashBoard />} />
-              <Route element={<Auth allowedRoles={["ADMIN"]} />}>
-                <Route path="/getusers" element={<Users />} />
+              <Route element={<JournalPreloader />}>
+                <Route path="/journal" element={<Journal />} />
+              </Route>
+              <Route element={<AuthPreloader allowedRoles={["ADMIN"]} />}>
+                <Route element={<UsersPreloader />}>
+                  <Route path="/getusers" element={<Users />} />
+                </Route>
               </Route>
             </Routes>
             <Typography

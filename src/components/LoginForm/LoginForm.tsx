@@ -6,7 +6,7 @@ import React, {
   FocusEvent,
   ChangeEvent,
 } from "react";
-import { Context } from "../../index";
+import { Context } from "../..";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
@@ -23,7 +23,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme();
 
 const LoginForm: FC = () => {
-  const { store } = useContext(Context);
+  const { authStore } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [emailDirty, setEmailDirty] = useState(false);
@@ -36,7 +36,7 @@ const LoginForm: FC = () => {
   const [notLogin, setNotLogin] = useState("");
 
   const login = (email: string, password: string) => {
-    const error = store.login(email, password);
+    const error = authStore.login(email, password);
     error.then((result) => {
       if (result) {
         console.log(result);
@@ -100,12 +100,10 @@ const LoginForm: FC = () => {
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
+					mt={8}
+					display="flex"
+					alignItems="center"
+					flexDirection="column"
         >
           <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
             <GppGoodIcon />

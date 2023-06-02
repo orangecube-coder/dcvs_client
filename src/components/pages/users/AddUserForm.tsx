@@ -6,45 +6,35 @@ import {
   useEffect,
   useContext,
 } from "react";
-import { Context } from "../../../index";
+import { Context } from "../../..";
 import {
   Dialog,
-  DialogTitle,
+  Stack,
   DialogActions,
-  IconButton,
   TextField,
-  Grid,
   DialogContent,
   DialogContentText,
   Button,
-  FormControlLabel,
-  Switch,
+  Typography,
+  Avatar,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 
 export interface SimpleDialogProps {
   onClose: () => void;
-  onUpdate: () => void;
   open: boolean;
 }
 
 const AddUserForm: FC<SimpleDialogProps> = (props) => {
-  const { onClose, onUpdate, open } = props;
-  const { store } = useContext(Context);
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
+  const { onClose, open } = props;
+  const { userStore } = useContext(Context);
+  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [firstNameDirty, setFirstNameDirty] = useState(false);
-  const [lastNameDirty, setLastNameDirty] = useState(false);
+  const [nameDirty, setNameDirty] = useState(false);
   const [emailDirty, setEmailDirty] = useState(false);
   const [passwordDirty, setPasswordDirty] = useState(false);
-  const [firstNameError, setFirstNameError] = useState(
-    "Поле 'Имя' не может быть пустым"
-  );
-  const [lastNameError, setLastNameError] = useState(
-    "Поле 'Фамилия' не может быть пустым"
-  );
+  const [nameError, setNameError] = useState("Поле 'Имя' не может быть пустым");
   const [emailError, setEmailError] = useState(
     "Поле 'Email' не может быть пустым"
   );
@@ -53,21 +43,12 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
   );
   const [formValid, setFormValid] = useState(false);
 
-  const firstNameHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    setFirstName(e.target.value);
+  const nameHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
     if (!e.target.value) {
-      setFirstNameError("Поле 'Имя' не может быть пустым");
+      setNameError("Поле 'Имя' не может быть пустым");
     } else {
-      setFirstNameError("");
-    }
-  };
-
-  const lastNameHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    setLastName(e.target.value);
-    if (!e.target.value) {
-      setLastNameError("Поле 'Фамилия' не может быть пустым");
-    } else {
-      setLastNameError("");
+      setNameError("");
     }
   };
 
@@ -99,18 +80,15 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
   };
 
   useEffect(() => {
-    if (emailError || passwordError || firstNameError || lastNameError) {
+    if (emailError || passwordError || nameError) {
       setFormValid(false);
     } else {
       setFormValid(true);
     }
-  }, [emailError, passwordError, firstNameError, lastNameError]);
+  }, [emailError, passwordError, nameError]);
 
-  const firstNameBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
-    setFirstNameDirty(true);
-  };
-  const lastNameBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
-    setLastNameDirty(true);
+  const nameBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
+    setNameDirty(true);
   };
   const emailBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
     setEmailDirty(true);
@@ -119,144 +97,91 @@ const AddUserForm: FC<SimpleDialogProps> = (props) => {
     setPasswordDirty(true);
   };
 
-  const addUser = (
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string
-  ) => {
-    store.addUser(firstName, lastName, email, password).then(() => {
-      onUpdate();
-    });
-  };
-
-  const clearForm = () => {
-    onClose();
-    store.clearAlertMsg();
-    setFirstName("");
-    setLastName("");
-    setPassword("");
-    setEmail("");
-    setFormValid(false);
+  const handleAdd = async () => {
+    const result = await userStore.addUser(name, email, password);
+    if (result) onClose();
   };
 
   return (
-    <Dialog open={open} maxWidth="xs">
-      <DialogTitle>
-        Новый пользователь
-        <IconButton
-          aria-label="close"
-          onClick={() => clearForm()}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+    <Dialog onClose={onClose} open={open} maxWidth="xs">
       <DialogContent>
-        <DialogContentText sx={{ mb: 1 }}>
-          Новому пользователю, по умолчанию, будет установлена роль `USERS`.
+        <DialogContentText mb={1} component="div">
+          <Stack spacing={2} direction="row" alignItems="center">
+            <Avatar>
+              <PersonAddIcon />
+            </Avatar>
+            <Typography>
+              Новому пользователю, по умолчанию, будет установлена роль
+              <Typography sx={{ fontWeight: "bold" }} component="span">
+                {" "}
+                `USERS`
+              </Typography>
+            </Typography>
+          </Stack>
         </DialogContentText>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              value={firstName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setFirstName(e.target.value);
-                firstNameHandler(e);
-              }}
-              onBlur={(e: FocusEvent<HTMLInputElement>) =>
-                firstNameBlurHandler(e)
-              }
-              error={!!(firstNameDirty && firstNameError)}
-              required={!!(firstNameDirty && firstNameError)}
-              helperText={firstNameDirty && firstNameError && firstNameError}
-              id="firstName"
-              name="firstName"
-              label="Имя"
-              fullWidth
-              variant="standard"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              value={lastName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setLastName(e.target.value);
-                lastNameHandler(e);
-              }}
-              onBlur={(e: FocusEvent<HTMLInputElement>) =>
-                lastNameBlurHandler(e)
-              }
-              error={!!(lastNameDirty && lastNameError)}
-              required={!!(lastNameDirty && lastNameError)}
-              helperText={lastNameDirty && lastNameError && lastNameError}
-              id="lastName"
-              name="lastName"
-              label="Фамилия"
-              placeholder="Фамилия"
-              fullWidth
-              variant="standard"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              value={email}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setEmail(e.target.value);
-                emailHandler(e);
-              }}
-              onBlur={(e: FocusEvent<HTMLInputElement>) => emailBlurHandler(e)}
-              error={!!(emailDirty && emailError)}
-              required={!!(emailDirty && emailError)}
-              placeholder="Email"
-              id="email"
-              label="Email"
-              name="email"
-              fullWidth
-              variant="standard"
-              helperText={emailDirty && emailError && emailError}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setPassword(e.target.value);
-                passwordHandler(e);
-              }}
-              onBlur={(e: FocusEvent<HTMLInputElement>) =>
-                passwordBlurHandler(e)
-              }
-              error={!!(passwordDirty && passwordError)}
-              required={!!(passwordDirty && passwordError)}
-              name="password"
-              label="Пароль"
-              type="password"
-              id="password"
-              fullWidth
-              variant="standard"
-              helperText={passwordDirty && passwordError && passwordError}
-            />
-          </Grid>
-        </Grid>
-        <FormControlLabel
+        <Stack spacing={2} mt={3}>
+          <TextField
+            value={name}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setName(e.target.value);
+              nameHandler(e);
+            }}
+            onBlur={(e: FocusEvent<HTMLInputElement>) => nameBlurHandler(e)}
+            error={!!(nameDirty && nameError)}
+            required={!!(nameDirty && nameError)}
+            helperText={nameDirty && nameError}
+            id="name"
+            name="name"
+            label="Имя"
+            fullWidth
+            autoFocus
+						autoComplete = 'no'
+          />
+
+          <TextField
+            value={email}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setEmail(e.target.value);
+              emailHandler(e);
+            }}
+            onBlur={(e: FocusEvent<HTMLInputElement>) => emailBlurHandler(e)}
+            error={!!(emailDirty && emailError)}
+            required={!!(emailDirty && emailError)}
+            placeholder="Email"
+            id="email"
+            label="Email"
+            name="email"
+            fullWidth
+            helperText={emailDirty && emailError}
+						autoComplete = 'no'
+          />
+          <TextField
+            value={password}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setPassword(e.target.value);
+              passwordHandler(e);
+            }}
+            onBlur={(e: FocusEvent<HTMLInputElement>) => passwordBlurHandler(e)}
+            error={!!(passwordDirty && passwordError)}
+            required={!!(passwordDirty && passwordError)}
+            name="password"
+            label="Пароль"
+            type="password"
+            id="password"
+            fullWidth
+            helperText={passwordDirty && passwordError}
+          />
+        </Stack>
+
+        {/* <FormControlLabel
           control={<Switch />}
           label="Требовать активацию"
           sx={{ mt: 1 }}
-        />
+        /> */}
 
         <DialogActions sx={{ mt: 2, ml: 1 }}>
-          <Button onClick={() => clearForm()}>Отмена</Button>
-          <Button
-            variant="contained"
-            disabled={!formValid}
-            onClick={() => addUser(firstName, lastName, email, password)}
-          >
+          <Button onClick={onClose}>Отмена</Button>
+          <Button variant="contained" disabled={!formValid} onClick={handleAdd}>
             Добавить
           </Button>
         </DialogActions>

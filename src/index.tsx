@@ -1,27 +1,50 @@
-import { createContext } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createContext } from "react";
+import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from './App';
-import Store from './store/store';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import App from "./App";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import AlertStore from "./store/AlertStore";
+import AuthStore from "./store/AuthStore";
+import UserStore from "./store/UserStore";
+import JournalStore from "./store/JournalStore";
 
 interface State {
-	store: Store;
+  alertStore: AlertStore;
+  authStore: AuthStore;
+  userStore: UserStore;
+  journalStore: JournalStore;
 }
 
-const store = new Store();
-export const Context = createContext<State>({ store });
+const alertStore = new AlertStore();
+const authStore = new AuthStore();
+const userStore = new UserStore(alertStore);
+const journalStore = new JournalStore(alertStore);
+
+export const Context = createContext<State>({
+  alertStore,
+  authStore,
+  userStore,
+  journalStore
+});
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
+
 root.render(
-	<Context.Provider value={{store}}>
-		<BrowserRouter>
-			<App />
-		</BrowserRouter>
-	</Context.Provider>
+  <Context.Provider
+    value={{
+      alertStore,
+      authStore,
+      userStore,
+      journalStore
+    }}
+  >
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Context.Provider>
 );

@@ -1,26 +1,26 @@
 import { FC, Fragment, useContext } from "react";
-import { Context } from "../../index";
+import { Context } from "../..";
 import { Snackbar, Alert } from "@mui/material";
 import { AlertColor } from "@mui/material";
 import { observer } from "mobx-react-lite";
 
 const AlertMsg: FC = () => {
-  const { store } = useContext(Context);
+  const { alertStore } = useContext(Context);
   return (
     <Fragment>
-      {store.alertMsg?.msg ? (
+      {alertStore.alertMsg?.msg ? (
         <Snackbar
-          open={store.alertMsg?.msg ? true : false}
+          open={alertStore.alertMsg?.msg ? true : false}
           autoHideDuration={10000}
-          onClose={() => store.clearAlertMsg()}
+          onClose={() => alertStore.clearAlertMsg()}
         >
           <Alert
             sx={{ mb: 1 }}
-            severity={store.alertMsg?.state as AlertColor}
+            severity={alertStore.alertMsg?.state as AlertColor}
             variant="filled"
-            onClose={() => store.clearAlertMsg()}
+            onClose={() => alertStore.clearAlertMsg()}
           >
-            {store.alertMsg?.msg}
+            {alertStore.alertMsg?.msg}
           </Alert>
         </Snackbar>
       ) : (

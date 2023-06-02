@@ -6,24 +6,24 @@ import LayOut from "./components/LayOut";
 import { Box, CircularProgress } from "@mui/material";
 
 const App: FC = () => {
-	const { store } = useContext(Context);
-	useEffect(() => {
-		if (localStorage.getItem("token")) {
-			store.checkAuth();
-		}
-	}, [store]);
-	
-	if (store.isLoading) {
-		return (
-			<Box sx={{ display: 'flex' }}>
-      	<CircularProgress />
-    	</Box>
-		);
-	}
-	if (!store.isAuth) {
-		return <LoginForm />;
-	}
-	return <LayOut />;
+  const { authStore } = useContext(Context);
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      authStore.checkAuth();
+    }
+  }, [authStore]);
+
+  if (authStore.isLoading) {
+    return (
+      <Box mt={5} display="flex" justifyContent="center">
+        <CircularProgress size="4rem" sx={{ color: "grey.300" }} />
+      </Box>
+    );
+  }
+  if (!authStore.isAuth) {
+    return <LoginForm />;
+  }
+  return <LayOut />;
 };
 
 export default observer(App);

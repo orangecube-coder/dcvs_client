@@ -10,6 +10,7 @@ import {
 import {
 	Dashboard as DashboardIcon,
 	ManageAccounts as ManageAccountsIcon, 
+	MenuBook as MenuBookIcon,
 } from '@mui/icons-material';
 
 interface SimpleProps {
@@ -30,6 +31,11 @@ const SideNav: FC<SimpleProps> = (props) => {
 			label: "Пользователи",
 			path: "/getusers",
 			icon: <ManageAccountsIcon />,
+		},
+		{
+			label: "Журнал",
+			path: "/journal",
+			icon: <MenuBookIcon />,
 		},
 	]
 	return (
