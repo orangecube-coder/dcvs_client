@@ -23,7 +23,7 @@ const AreaItem: FC<Props> = (props) => {
 	const jsonSelectAreas = JSON.stringify(journalStore.selectAreas);
 
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    journalStore.addAreaFilter(area._id, event.target.checked);
+    journalStore.addAreaCheckFilter(area._id, event.target.checked);
   };
 
   useEffect(() => {

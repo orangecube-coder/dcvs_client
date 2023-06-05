@@ -1,4 +1,11 @@
-import { FC, Fragment, useEffect, useState, useContext } from "react";
+import {
+  FC,
+  Fragment,
+  useEffect,
+  useState,
+  useContext,
+  ChangeEvent,
+} from "react";
 import { styled } from "@mui/material/styles";
 import { Context } from "../..";
 import { observer } from "mobx-react-lite";
@@ -17,6 +24,7 @@ import {
   Grid,
   IconButton,
   IconButtonProps,
+  TextField,
 } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
@@ -25,6 +33,7 @@ import {
   Share as ShareIcon,
   AutoAwesomeMotion as AutoAwesomeMotionIcon,
   AutoAwesomeMotionOutlined as AutoAwesomeMotionOutlinedIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { red, green } from "@mui/material/colors";
 
@@ -50,7 +59,8 @@ const Journal: FC = () => {
   const [openAddAreaForm, setOpenAddAreaForm] = useState<boolean>(false);
   const [openAddNodeForm, setOpenAddNodeForm] = useState<boolean>(false);
   const [checkedAllAreas, setCheckedAllAreas] = useState<boolean>(false);
-	const jsonSelectAreas = JSON.stringify(journalStore.selectAreas);
+  const jsonSelectAreas = JSON.stringify(journalStore.selectAreas);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
 
   const handleExpandClickArea = () => {
     setExpandedAreas(!expandedAreas);
@@ -61,14 +71,18 @@ const Journal: FC = () => {
   };
 
   const handleCheckAllAreasClick = () => {
-		journalStore.fillAreaFilter(!checkedAllAreas);
+    journalStore.fillAreaCheckFilter(!checkedAllAreas);
+  };
+
+  const changeSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    journalStore.searchAreaByName(e.target.value);
   };
 
   useEffect(() => {
-		setCheckedAllAreas(false);
-		journalStore.selectAreas.forEach((item) => {
-			if (item) setCheckedAllAreas(true);
-		})
+    setCheckedAllAreas(false);
+    journalStore.selectAreas.forEach((item) => {
+      if (item) setCheckedAllAreas(true);
+    });
   }, [journalStore.selectAreas, jsonSelectAreas]);
 
   return (
@@ -84,9 +98,12 @@ const Journal: FC = () => {
                 </Avatar>
               }
               title="ЗОНЫ"
-              subheader="September 14, 2016"
+              subheader={journalStore.areaStore.modedAreas.length + " items"}
               action={
                 <Fragment>
+                  <IconButton onClick={() => setShowSearch(!showSearch)}>
+                    <SearchIcon color={showSearch ? "primary" : undefined} />
+                  </IconButton>
                   <Checkbox
                     checked={checkedAllAreas}
                     onChange={handleCheckAllAreasClick}
@@ -107,6 +124,15 @@ const Journal: FC = () => {
             ></CardHeader>
             <Collapse in={expandedAreas}>
               <CardContent>
+                {showSearch && (
+                  <TextField
+                    autoFocus
+                    fullWidth
+                    label={"Поиск"}
+                    size="small"
+                    onChange={changeSearchHandler}
+                  />
+                )}
                 <AreaTable />
               </CardContent>
             </Collapse>
@@ -121,7 +147,7 @@ const Journal: FC = () => {
                 </Avatar>
               }
               title="УЗЛЫ"
-              subheader="September 14, 2016"
+              subheader={journalStore.nodeStore.modedNodes.length + " items"}
               action={
                 <Fragment>
                   <IconButton onClick={() => setOpenAddNodeForm(true)}>

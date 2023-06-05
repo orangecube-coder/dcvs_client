@@ -10,6 +10,8 @@ import AlertStore from "./store/AlertStore";
 import AuthStore from "./store/AuthStore";
 import UserStore from "./store/UserStore";
 import JournalStore from "./store/JournalStore";
+import AreaStore from "./store/AreaStore";
+import NodeStore from "./store/NodeStore";
 
 interface State {
   alertStore: AlertStore;
@@ -21,13 +23,15 @@ interface State {
 const alertStore = new AlertStore();
 const authStore = new AuthStore();
 const userStore = new UserStore(alertStore);
-const journalStore = new JournalStore(alertStore);
+const nodeStore = new NodeStore(alertStore);
+const areaStore = new AreaStore(alertStore);
+const journalStore = new JournalStore(alertStore, nodeStore, areaStore);
 
 export const Context = createContext<State>({
   alertStore,
   authStore,
   userStore,
-  journalStore
+  journalStore,
 });
 
 const root = ReactDOM.createRoot(

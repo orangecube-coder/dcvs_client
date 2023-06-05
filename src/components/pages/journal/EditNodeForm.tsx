@@ -90,7 +90,7 @@ const EditNodeForm: FC<DialogProps> = (props) => {
                 label="Зона"
                 onChange={handleChangeArea}
               >
-                {journalStore.areas.map((area) => (
+                {journalStore.areaStore.areas.map((area) => (
                   <MenuItem
                     key={area._id}
                     value={JSON.stringify({

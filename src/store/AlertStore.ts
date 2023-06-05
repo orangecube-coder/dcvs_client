@@ -6,6 +6,7 @@ export default class AlertStore {
     msg: "",
     err: {},
   };
+
 	constructor() {
     makeAutoObservable(this);
   }
