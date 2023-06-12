@@ -1,219 +1,106 @@
-import { AxiosError } from "axios";
-import { runInAction, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import AlertStore from "./AlertStore";
-import $api from "./Interceptors";
 import { INode, IArea } from "./Interfaces";
 import NodeStore from "./NodeStore";
 import AreaStore from "./AreaStore";
 
 export default class JournalStore {
   alert: AlertStore;
-  areas: IArea[] = [];
-  nodes: INode[] = [];
-  selectAreas = new Map();
-	searchAreas = new Map();
-  modedNodes: INode[] = [];
-	modedAreas: IArea[] = [];
-	nodeStore: NodeStore;
-	areaStore: AreaStore;
+  nodeStore: NodeStore;
+  areaStore: AreaStore;
 
   constructor(alert: AlertStore, nodeStore: NodeStore, areaStore: AreaStore) {
     makeAutoObservable(this);
     this.alert = alert;
-		this.nodeStore = nodeStore;
-		this.areaStore = areaStore;
+    this.nodeStore = nodeStore;
+    this.areaStore = areaStore;
   }
 
-  async addAreaCheckFilter(area_id: string, checked: boolean) {
-    runInAction(() => {
-      if (checked) {
-        this.selectAreas.set(area_id, true);
-      } else this.selectAreas.set(area_id, false);
-      this.applyNodeByAreaCheckFilter();
-    });
+  get areas() {
+    return this.areaStore.areas;
   }
 
-  async addAreaSearchFilter(area_id: string, finded: boolean) {
-    runInAction(() => {
-      if (finded) {
-        this.searchAreas.set(area_id, true);
-      } else this.searchAreas.set(area_id, false);
-      this.applyAreaSearchFilter();
-    });
+  get selectAreas() {
+    return this.areaStore.selectAreas;
   }
 
-	fillAreaSearchFilter(value: boolean) {
-    runInAction(() => {
-      this.areas.forEach((area) => {
-        this.searchAreas.set(area._id, value);
-      });
-      this.applyAreaSearchFilter();
-    });
+  get modedAreas() {
+    return this.areaStore.modedAreas;
   }
 
-  async applyAreaSearchFilter() {
-    this.modedAreas = this.areas.filter((area) =>
-      this.searchAreas.get(area._id)
-    );
+  get nodes() {
+    return this.nodeStore.nodes;
   }
 
-  searchAreaByName(value: string) {
-    this.modedAreas = this.areas.filter(
-      (area) =>
-        area.value.toLowerCase().includes(value.toLowerCase()) ||
-        area.description.toLowerCase().includes(value.toLowerCase())
-    );
+	get selectNodes() {
+    return this.nodeStore.selectNodes;
   }
 
-  async applyNodeByAreaCheckFilter() {
-    this.modedNodes = this.nodes.filter((node) =>
-      this.selectAreas.get(node.area._id)
-    );
+  get modedNodes() {
+    return this.nodeStore.modedNodes;
   }
 
-	fillAreaCheckFilter(value: boolean) {
-    runInAction(() => {
-      this.areas.forEach((area) => {
-        this.selectAreas.set(area._id, value);
-      });
-      this.applyNodeByAreaCheckFilter();
-    });
+  async preloadJournal() {
+    await this.getAllAreas();
+    await this.getAllNodes();
   }
 
-  async getAllNodes() {
-    const response = await $api.get<INode[]>("/journal/nodes");
-    runInAction(() => {
-      this.nodes = response.data;
-			this.applyNodeByAreaCheckFilter();
-    });
-  }
-
-	async getAllAreas() {
-    const response = await $api.get<IArea[]>("/journal/areas");
-    runInAction(() => {
-      this.areas = response.data;
-      this.selectAreas.clear();
-      this.fillAreaCheckFilter(true);
-      this.fillAreaSearchFilter(true);
-    });
-  }
-
-
-  async addNode(nodeName: string, area: IArea) {
-    try {
-      const response = await $api.post("/journal/addnode", { nodeName, area });
-      runInAction(() => {
-        this.alert.alertMsg = { ...response.data.message };
-        this.getAllNodes();
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
-    }
+  async getAllAreas() {
+    await this.areaStore.getAllAreas();
   }
 
   async addArea(areaName: string, areaDescription: string) {
-    try {
-      const response = await $api.post("/journal/addarea", {
-        areaName,
-        areaDescription,
-      });
-      runInAction(() => {
-        this.alert.alertMsg = { ...response.data.message };
-        this.getAllAreas();
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
-    }
-  }
-
-  async delNode(node: INode) {
-    try {
-      const response = await $api.post("/journal/delnode", { node });
-      runInAction(() => {
-        this.alert.alertMsg = { ...response.data.message };
-        this.getAllNodes();
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
-    }
+    return await this.areaStore.addArea(areaName, areaDescription);
   }
 
   async delArea(area: IArea) {
-    try {
-      const response = await $api.post("/journal/delarea", { area });
-      runInAction(() => {
-        this.alert.alertMsg = { ...response.data.message };
-        this.getAllAreas();
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
-    }
+    return await this.areaStore.delArea(area);
   }
 
-  async editArea(area: IArea) {
-    try {
-      const response = await $api.post("/journal/editarea", { area });
-      runInAction(() => {
-        this.alert.alertMsg = { ...response.data.message };
-        this.getAllAreas();
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
-    }
+  async editArea(area: IArea, value: string, description: string) {
+    return await this.areaStore.editArea(area, value, description);
+  }
+
+  fillAreaCheckFilter(value: boolean) {
+    this.areaStore.fillAreaCheckFilter(value);
+    this.nodeStore.applyNodeByAreaCheckFilter(this.selectAreas);
+  }
+
+  addAreaCheckFilter(area_id: string, checked: boolean) {
+    this.areaStore.addAreaCheckFilter(area_id, checked);
+    this.nodeStore.applyNodeByAreaCheckFilter(this.selectAreas);
+  }
+
+  searchAreaByName(value: string) {
+    this.areaStore.searchAreaByName(value);
+  }
+
+  async getAllNodes() {
+    await this.nodeStore.getAllNodes();
+    this.nodeStore.applyNodeByAreaCheckFilter(this.selectAreas);		
+  }
+
+  async addNode(nodeName: string, area: IArea) {
+    return await this.nodeStore.addNode(nodeName, area);
+  }
+
+  async delNode(node: INode) {
+    return await this.nodeStore.delNode(node);
+  }
+  
+	async editNode(node: INode, value: string, area: IArea) {
+    return await this.nodeStore.editNode(node, value, area);
+  }
+
+	fillNodeCheckFilter(value: boolean) {
+    this.nodeStore.fillNodeCheckFilter(value);
+  }
+
+	addNodeCheckFilter(node_id: string, checked: boolean) {
+    this.nodeStore.addNodeCheckFilter(node_id, checked);
+  }
+
+  searchNodeByName(value: string) {
+    this.nodeStore.searchNodeByName(value);
   }
 }

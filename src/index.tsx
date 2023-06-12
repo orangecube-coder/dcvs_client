@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import {injectStores} from '@mobx-devtools/tools';
 import App from "./App";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -28,6 +29,13 @@ const areaStore = new AreaStore(alertStore);
 const journalStore = new JournalStore(alertStore, nodeStore, areaStore);
 
 export const Context = createContext<State>({
+  alertStore,
+  authStore,
+  userStore,
+  journalStore,
+});
+
+injectStores({
   alertStore,
   authStore,
   userStore,

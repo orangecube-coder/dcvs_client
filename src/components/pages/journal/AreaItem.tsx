@@ -21,7 +21,7 @@ const AreaItem: FC<Props> = (props) => {
   const [openEditAreaForm, setOpenEditAreaForm] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(false);
 	const jsonSelectAreas = JSON.stringify(journalStore.selectAreas);
-
+	
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
     journalStore.addAreaCheckFilter(area._id, event.target.checked);
   };

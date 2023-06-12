@@ -1,4 +1,4 @@
-import { FC, useContext, ChangeEvent } from "react";
+import { FC, useContext, ChangeEvent, useState } from "react";
 import { Context } from "../../..";
 import { IArea } from "../../../store/Interfaces";
 import {
@@ -24,17 +24,19 @@ export interface DialogProps {
 const EditAreaForm: FC<DialogProps> = (props) => {
   const { onClose, open, area } = props;
   const { journalStore } = useContext(Context);
+  const [value, setValue] = useState<string>(area.value);
+  const [description, setDescription] = useState<string>(area.description);
 
-  const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
-    area.value = e.target.value;
+  const handleChangeValue = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
   };
 
   const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
-    area.description = e.target.value;
+    setDescription(e.target.value);
   };
 
   const handleEdit = async () => {
-    const result = await journalStore.editArea(area);
+    const result = await journalStore.editArea(area, value, description);
     if (result) onClose();
   };
 
@@ -47,7 +49,7 @@ const EditAreaForm: FC<DialogProps> = (props) => {
               <ModeIcon />
             </Avatar>
             <Typography component={"span"}>
-              Измените параметры производственной зоны: {" "}
+              Измените параметры производственной зоны:{" "}
               <Typography sx={{ fontWeight: "bold" }} component={"span"}>
                 {area.value}
               </Typography>
@@ -57,7 +59,7 @@ const EditAreaForm: FC<DialogProps> = (props) => {
         <Stack spacing={2} mt={3}>
           <TextField
             label="Имя зоны"
-            onChange={handleChangeName}
+            onChange={handleChangeValue}
             multiline
             maxRows={5}
             defaultValue={area.value}

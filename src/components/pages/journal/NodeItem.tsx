@@ -1,6 +1,8 @@
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useState, useContext, useEffect } from "react";
 import { INode } from "../../../store/Interfaces";
-import { IconButton, ListItem, ListItemText } from "@mui/material";
+import { Context } from "../../..";
+import { observer } from "mobx-react-lite";
+import { Checkbox, IconButton, ListItem, ListItemText } from "@mui/material";
 import {
   DeleteForever as DeleteForeverIcon,
   Edit as EditIcon,
@@ -14,8 +16,19 @@ interface Props {
 
 const NodeItem: FC<Props> = (props) => {
   const { node } = props;
+	const { journalStore } = useContext(Context);
   const [openDeleteNodeForm, setOpenDeleteNodeForm] = useState<boolean>(false);
   const [openEditNodeForm, setOpenEditNodeForm] = useState<boolean>(false);
+	const [checked, setChecked] = useState<boolean>(false);
+	const jsonSelectNodes = JSON.stringify(journalStore.selectNodes);
+
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    journalStore.addNodeCheckFilter(node._id, event.target.checked);
+  };
+
+	useEffect(() => {
+    setChecked(journalStore.selectNodes.get(node._id));
+  }, [node._id, jsonSelectNodes, journalStore]);
 
   return (
     <Fragment>
@@ -25,6 +38,7 @@ const NodeItem: FC<Props> = (props) => {
           secondary={node.area.value}
           sx={{ mr: 1 }}
         />
+				<Checkbox checked={checked} onChange={handleCheck} />
         <IconButton
           edge="end"
           color="primary"
@@ -58,4 +72,4 @@ const NodeItem: FC<Props> = (props) => {
   );
 };
 
-export default NodeItem;
+export default observer(NodeItem);

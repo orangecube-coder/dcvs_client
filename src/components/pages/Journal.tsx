@@ -59,8 +59,11 @@ const Journal: FC = () => {
   const [openAddAreaForm, setOpenAddAreaForm] = useState<boolean>(false);
   const [openAddNodeForm, setOpenAddNodeForm] = useState<boolean>(false);
   const [checkedAllAreas, setCheckedAllAreas] = useState<boolean>(false);
+  const [checkedAllNodes, setCheckedAllNodes] = useState<boolean>(false);
   const jsonSelectAreas = JSON.stringify(journalStore.selectAreas);
-  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const jsonSelectNodes = JSON.stringify(journalStore.selectNodes);
+  const [showAreaSearch, setShowAreaSearch] = useState<boolean>(false);
+  const [showNodeSearch, setShowNodeSearch] = useState<boolean>(false);
 
   const handleExpandClickArea = () => {
     setExpandedAreas(!expandedAreas);
@@ -70,12 +73,31 @@ const Journal: FC = () => {
     setExpandedNodes(!expandedNodes);
   };
 
+  const handleShowAreaSearchClick = () => {
+		setShowAreaSearch(!showAreaSearch);
+    if (!showAreaSearch) setExpandedAreas(true);
+  };
+
+	const handleShowNodeSearchClick = () => {
+		setShowNodeSearch(!showNodeSearch);
+    if (!showNodeSearch) setExpandedNodes(true);
+  };
+
   const handleCheckAllAreasClick = () => {
     journalStore.fillAreaCheckFilter(!checkedAllAreas);
   };
 
-  const changeSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCheckAllNodesClick = () => {
+    journalStore.fillNodeCheckFilter(!checkedAllNodes);
+  };
+
+  const changeAreaSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     journalStore.searchAreaByName(e.target.value);
+  };
+
+  const changeNodeSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setExpandedNodes(true); ///????
+    journalStore.searchNodeByName(e.target.value);
   };
 
   useEffect(() => {
@@ -84,6 +106,13 @@ const Journal: FC = () => {
       if (item) setCheckedAllAreas(true);
     });
   }, [journalStore.selectAreas, jsonSelectAreas]);
+
+  useEffect(() => {
+    setCheckedAllNodes(false);
+    journalStore.selectNodes.forEach((item) => {
+      if (item) setCheckedAllNodes(true);
+    });
+  }, [journalStore.selectNodes, jsonSelectNodes]);
 
   return (
     <Fragment>
@@ -101,8 +130,12 @@ const Journal: FC = () => {
               subheader={journalStore.areaStore.modedAreas.length + " items"}
               action={
                 <Fragment>
-                  <IconButton onClick={() => setShowSearch(!showSearch)}>
-                    <SearchIcon color={showSearch ? "primary" : undefined} />
+                  <IconButton
+                    onClick={handleShowAreaSearchClick}
+                  >
+                    <SearchIcon
+                      color={showAreaSearch ? "primary" : undefined}
+                    />
                   </IconButton>
                   <Checkbox
                     checked={checkedAllAreas}
@@ -124,13 +157,13 @@ const Journal: FC = () => {
             ></CardHeader>
             <Collapse in={expandedAreas}>
               <CardContent>
-                {showSearch && (
+                {showAreaSearch && (
                   <TextField
                     autoFocus
                     fullWidth
                     label={"Поиск"}
                     size="small"
-                    onChange={changeSearchHandler}
+                    onChange={changeAreaSearchHandler}
                   />
                 )}
                 <AreaTable />
@@ -150,6 +183,19 @@ const Journal: FC = () => {
               subheader={journalStore.nodeStore.modedNodes.length + " items"}
               action={
                 <Fragment>
+                  <IconButton
+                    onClick={handleShowNodeSearchClick}
+                  >
+                    <SearchIcon
+                      color={showNodeSearch ? "primary" : undefined}
+                    />
+                  </IconButton>
+                  <Checkbox
+                    checked={checkedAllNodes}
+                    onChange={handleCheckAllNodesClick}
+                    icon={<AutoAwesomeMotionOutlinedIcon />}
+                    checkedIcon={<AutoAwesomeMotionIcon />}
+                  />
                   <IconButton onClick={() => setOpenAddNodeForm(true)}>
                     <PlaylistAddIcon color="primary" />
                   </IconButton>
@@ -168,6 +214,15 @@ const Journal: FC = () => {
             </CardHeader>
             <Collapse in={expandedNodes}>
               <CardContent>
+                {showNodeSearch && (
+                  <TextField
+                    autoFocus
+                    fullWidth
+                    label={"Поиск"}
+                    size="small"
+                    onChange={changeNodeSearchHandler}
+                  />
+                )}
                 <NodeTable />
               </CardContent>
             </Collapse>

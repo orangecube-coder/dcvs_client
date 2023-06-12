@@ -7,6 +7,7 @@ import NodeItem from "./NodeItem";
 
 const NodeTable: FC = () => {
   const { journalStore } = useContext(Context);
+	
   return (
     <Fragment>
       <List dense>

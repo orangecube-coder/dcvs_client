@@ -26,8 +26,6 @@ export const UsersPreloader: FC = () => {
 
 export const JournalPreloader: FC = () => {
   const { journalStore } = useContext(Context);
-  journalStore.getAllAreas();
-  journalStore.getAllNodes();
-
+  journalStore.preloadJournal();
   return <Outlet />;
 };

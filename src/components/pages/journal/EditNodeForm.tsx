@@ -1,4 +1,4 @@
-import { FC, useState, useContext, ChangeEvent, useEffect } from "react";
+import { FC, useState, useContext, ChangeEvent } from "react";
 import { Context } from "../../..";
 import { INode } from "../../../store/Interfaces";
 import {
@@ -29,32 +29,23 @@ export interface DialogProps {
 const EditNodeForm: FC<DialogProps> = (props) => {
   const { onClose, open, node } = props;
   const { journalStore } = useContext(Context);
-  const [nodeName, setNodeName] = useState("");
+  const [value, setValue] = useState<string>(node.value);
   const [area, setArea] = useState<string>(
-    JSON.stringify({ _id: node.area?._id, value: node.area?.value })
+    JSON.stringify({ _id: node.area._id, value: node.area.value })
   );
-  const [formValid, setFormValid] = useState(false);
 
-  const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
-    setNodeName(e.target.value as string);
+  const handleChangeValue = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value as string);
   };
 
   const handleChangeArea = (e: SelectChangeEvent) => {
     setArea(e.target.value as string);
   };
 
-  const handleAdd = async () => {
-    const result = await journalStore.addNode(nodeName, JSON.parse(area));
+  const handleEdit = async () => {
+    const result = await journalStore.editNode(node, value, JSON.parse(area));
     if (result) onClose();
   };
-
-  useEffect(() => {
-    if (nodeName.length > 5 && area.length > 0) {
-      setFormValid(true);
-    } else {
-      setFormValid(false);
-    }
-  }, [nodeName, area]);
 
   return (
     <Dialog onClose={onClose} open={open} maxWidth="xs">
@@ -75,7 +66,7 @@ const EditNodeForm: FC<DialogProps> = (props) => {
         <Stack spacing={2} mt={3}>
           <TextField
             label="Имя узла"
-            onChange={handleChangeName}
+            onChange={handleChangeValue}
             multiline
             maxRows={5}
             autoFocus
@@ -106,8 +97,8 @@ const EditNodeForm: FC<DialogProps> = (props) => {
         </Stack>
         <DialogActions sx={{ mt: 3, ml: 1 }}>
           <Button onClick={onClose}>Отмена</Button>
-          <Button variant="contained" disabled={!formValid} onClick={handleAdd}>
-            Добавить
+          <Button variant="contained" /*disabled={!formValid}*/ onClick={handleEdit}>
+            Изменить
           </Button>
         </DialogActions>
       </DialogContent>
