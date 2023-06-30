@@ -1,8 +1,7 @@
-import { IArea } from "./Interfaces";
-import { AxiosError } from "axios";
+import { IArea } from "../Interfaces";
 import { runInAction, makeAutoObservable } from "mobx";
-import $api from "./Interceptors";
-import AlertStore from "./AlertStore";
+import $api from "../Interceptors";
+import AlertStore from "../AlertStore";
 
 export default class AreaStore {
   alert: AlertStore;
@@ -68,11 +67,11 @@ export default class AreaStore {
     });
   }
 
-  async addArea(areaName: string, areaDescription: string) {
+  async addArea(value: string, description: string) {
     try {
       const response = await $api.post("/journal/addarea", {
-        areaName,
-        areaDescription,
+        value,
+        description,
       });
       runInAction(() => {
         this.alert.alertMsg = { ...response.data.message };
@@ -80,40 +79,24 @@ export default class AreaStore {
       });
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+      return this.alert.returnedError(err);
     }
   }
 
   async editArea(area: IArea, value: string, description: string) {
     try {
-      const response = await $api.post("/journal/editarea", { area, value, description });
+      const response = await $api.post("/journal/editarea", {
+        area,
+        value,
+        description,
+      });
       runInAction(() => {
         this.alert.alertMsg = { ...response.data.message };
         this.getAllAreas();
       });
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+      return this.alert.returnedError(err);
     }
   }
 
@@ -126,17 +109,7 @@ export default class AreaStore {
       });
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+			return this.alert.returnedError(err);
     }
   }
 }

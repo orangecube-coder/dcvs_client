@@ -1,6 +1,6 @@
 import { FC, Fragment, useState, useContext, useEffect } from "react";
-import { IArea } from "../../../store/Interfaces";
-import { Context } from "../../..";
+import { IArea } from "../../../../store/Interfaces";
+import { Context } from "../../../..";
 import { observer } from "mobx-react-lite";
 import { IconButton, ListItem, ListItemText, Checkbox } from "@mui/material";
 import {

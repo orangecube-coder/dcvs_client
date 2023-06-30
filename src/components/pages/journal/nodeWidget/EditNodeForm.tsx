@@ -1,6 +1,6 @@
 import { FC, useState, useContext, ChangeEvent } from "react";
-import { Context } from "../../..";
-import { INode } from "../../../store/Interfaces";
+import { Context } from "../../../..";
+import { INode } from "../../../../store/Interfaces";
 import {
   Dialog,
   DialogContent,

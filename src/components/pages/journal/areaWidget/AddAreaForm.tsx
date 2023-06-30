@@ -1,5 +1,5 @@
 import { FC, useState, useContext, ChangeEvent } from "react";
-import { Context } from "../../..";
+import { Context } from "../../../..";
 import {
   Dialog,
   DialogContent,
@@ -22,23 +22,23 @@ export interface DialogProps {
 const AddAreaForm: FC<DialogProps> = (props) => {
   const { onClose, open } = props;
   const { journalStore } = useContext(Context);
-  const [areaName, setAreaName] = useState("");
-  const [areaDescription, setAreaDescription] = useState("");
+  const [value, setValue] = useState("");
+  const [description, setDescription] = useState("");
   const [formValid, setFormValid] = useState(false);
 
   const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 5) {
       setFormValid(true);
     } else setFormValid(false);
-    setAreaName(e.target.value as string);
+    setValue(e.target.value as string);
   };
 
   const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
-    setAreaDescription(e.target.value as string);
+    setDescription(e.target.value as string);
   };
 
   const handleAdd = async () => {
-    const result = await journalStore.addArea(areaName, areaDescription);
+    const result = await journalStore.addArea(value, description);
     if (result) onClose();
   };
 

@@ -3,12 +3,12 @@ import { makeAutoObservable } from "mobx";
 import $api, { API_URL } from "./Interceptors";
 import { IAuthResponse, IUser } from "./Interfaces";
 
-export default class AuthStore { 
-	user: IUser = {} as IUser;
+export default class AuthStore {
+  user: IUser = {} as IUser;
   isAuth: boolean = false;
   isLoading: boolean = false;
   isFetchError: boolean = false;
-	
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -21,7 +21,7 @@ export default class AuthStore {
     this.user = user;
   }
 
-	setLoading(bool: boolean) {
+  setLoading(bool: boolean) {
     this.isLoading = bool;
   }
 
@@ -34,7 +34,6 @@ export default class AuthStore {
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
-			
     } catch (err) {
       if (err instanceof AxiosError) {
         const error: string = err.response?.data.message;
@@ -43,7 +42,7 @@ export default class AuthStore {
     }
   }
 
-	async logout() {
+  async logout() {
     try {
       await $api.post("/logout");
       localStorage.removeItem("token");
@@ -54,7 +53,7 @@ export default class AuthStore {
     }
   }
 
-	async checkAuth() {
+  async checkAuth() {
     try {
       this.setLoading(true);
       const response = await axios.get<IAuthResponse>(`${API_URL}/refresh`, {

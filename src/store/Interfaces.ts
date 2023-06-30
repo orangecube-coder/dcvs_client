@@ -39,3 +39,11 @@ export interface INode {
   value: string;
 	area: IArea;
 }
+
+export interface IRecord {
+  _id: string;
+  node: INode;
+	user: IUser;
+	timestamp: Date;
+	description: string;
+}

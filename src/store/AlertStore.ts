@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { IAlertMessage } from "./Interfaces";
+import { AxiosError } from "axios";
 
 export default class AlertStore { 
 	alertMsg: IAlertMessage = {
@@ -18,4 +19,18 @@ export default class AlertStore {
   clearAlertMsg() {
     this.alertMsg = { msg: "", err: {} };
   }
+
+	returnedError(err: unknown) { ///???
+		if (err instanceof AxiosError) {
+			const error: string = err.response?.data.message;
+			// runInAction(() => {
+				this.alertMsg = {
+					state: "error",
+					msg: error,
+					err,
+				};
+			// });
+			return false;
+		}
+	}
 }

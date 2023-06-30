@@ -39,7 +39,6 @@ const LoginForm: FC = () => {
     const error = authStore.login(email, password);
     error.then((result) => {
       if (result) {
-        console.log(result);
         setNotLogin(result);
       } else {
         setNotLogin("");
@@ -63,6 +62,7 @@ const LoginForm: FC = () => {
       setFormValid(true);
     }
   }, [emailError, passwordError]);
+
   const emailHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     const re = new RegExp(
@@ -77,6 +77,7 @@ const LoginForm: FC = () => {
       setEmailError("");
     }
   };
+
   const passwordHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     if (e.target.value.length < 3 || e.target.value.length > 8) {
@@ -88,9 +89,11 @@ const LoginForm: FC = () => {
       setPasswordError("");
     }
   };
+
   const emailBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
     setEmailDirty(true);
   };
+
   const passwordBlurHandler = (e: FocusEvent<HTMLInputElement>) => {
     setPasswordDirty(true);
   };

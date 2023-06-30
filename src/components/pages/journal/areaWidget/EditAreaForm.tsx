@@ -1,6 +1,6 @@
 import { FC, useContext, ChangeEvent, useState } from "react";
-import { Context } from "../../..";
-import { IArea } from "../../../store/Interfaces";
+import { Context } from "../../../..";
+import { IArea } from "../../../../store/Interfaces";
 import {
   Dialog,
   DialogContent,

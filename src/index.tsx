@@ -11,13 +11,15 @@ import AlertStore from "./store/AlertStore";
 import AuthStore from "./store/AuthStore";
 import UserStore from "./store/UserStore";
 import JournalStore from "./store/JournalStore";
-import AreaStore from "./store/AreaStore";
-import NodeStore from "./store/NodeStore";
+import AreaStore from "./store/journalStore/AreaStore";
+import NodeStore from "./store/journalStore/NodeStore";
+import RecordStore from "./store/journalStore/RecordlStore";
 
 interface State {
   alertStore: AlertStore;
   authStore: AuthStore;
   userStore: UserStore;
+	recordStore: RecordStore;
   journalStore: JournalStore;
 }
 
@@ -26,12 +28,14 @@ const authStore = new AuthStore();
 const userStore = new UserStore(alertStore);
 const nodeStore = new NodeStore(alertStore);
 const areaStore = new AreaStore(alertStore);
-const journalStore = new JournalStore(alertStore, nodeStore, areaStore);
+const recordStore = new RecordStore(alertStore);
+const journalStore = new JournalStore(alertStore, nodeStore, areaStore, recordStore);
 
 export const Context = createContext<State>({
   alertStore,
   authStore,
   userStore,
+	recordStore,
   journalStore,
 });
 
@@ -39,6 +43,7 @@ injectStores({
   alertStore,
   authStore,
   userStore,
+	recordStore,
   journalStore,
 });
 
@@ -52,6 +57,7 @@ root.render(
       alertStore,
       authStore,
       userStore,
+			recordStore,
       journalStore
     }}
   >

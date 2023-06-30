@@ -1,6 +1,6 @@
 import { FC, Fragment, useState, useContext, useEffect } from "react";
-import { INode } from "../../../store/Interfaces";
-import { Context } from "../../..";
+import { INode } from "../../../../store/Interfaces";
+import { Context } from "../../../..";
 import { observer } from "mobx-react-lite";
 import { Checkbox, IconButton, ListItem, ListItemText } from "@mui/material";
 import {

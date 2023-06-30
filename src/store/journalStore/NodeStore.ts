@@ -1,8 +1,7 @@
-import { INode, IArea } from "./Interfaces";
-import { AxiosError } from "axios";
-import $api from "./Interceptors";
+import { INode, IArea } from "../Interfaces";
+import $api from "../Interceptors";
 import { runInAction, makeAutoObservable } from "mobx";
-import AlertStore from "./AlertStore";
+import AlertStore from "../AlertStore";
 
 export default class NodeStore {
   alert: AlertStore;
@@ -75,26 +74,16 @@ export default class NodeStore {
     });
   }
 
-  async addNode(nodeName: string, area: IArea) {
+  async addNode(value: string, area: IArea) {
     try {
-      const response = await $api.post("/journal/addnode", { nodeName, area });
+      const response = await $api.post("/journal/addnode", { value, area });
       runInAction(() => {
         this.alert.alertMsg = { ...response.data.message };
         this.getAllNodes();
       });
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+      return this.alert.returnedError(err);
     }
   }
 
@@ -111,17 +100,7 @@ export default class NodeStore {
       });
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+      return this.alert.returnedError(err);
     }
   }
 
@@ -134,17 +113,7 @@ export default class NodeStore {
       this.getAllNodes();
       return true;
     } catch (err) {
-      if (err instanceof AxiosError) {
-        const error: string = err.response?.data.message;
-        runInAction(() => {
-          this.alert.alertMsg = {
-            state: "error",
-            msg: error,
-            err,
-          };
-        });
-        return false;
-      }
+      return this.alert.returnedError(err);
     }
   }
 }

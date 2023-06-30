@@ -1,5 +1,5 @@
-import { FC, useState, useContext, ChangeEvent, useEffect } from "react";
-import { Context } from "../../..";
+import { FC, useState, useContext, ChangeEvent } from "react";
+import { Context } from "../../../..";
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,11 @@ import {
   Stack,
   Avatar,
   Typography,
+  FormControl,
+  SelectChangeEvent,
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
-	FormControl,
 } from "@mui/material";
 import { PlaylistAdd as PlaylistAddIcon } from "@mui/icons-material";
 import { blue } from "@mui/material/colors";
@@ -24,33 +24,38 @@ export interface DialogProps {
   open: boolean;
 }
 
-const AddNodeForm: FC<DialogProps> = (props) => {
+const AddRecordForm: FC<DialogProps> = (props) => {
   const { onClose, open } = props;
-  const { journalStore } = useContext(Context);
-  const [nodeName, setNodeName] = useState("");
-  const [area, setArea] = useState("");
-  const [formValid, setFormValid] = useState(false);
+  const { journalStore, authStore } = useContext(Context);
+  // const [value, setValue] = useState("");
+  const [node, setNode] = useState("");
+  const [description, setDescription] = useState("");
+  const [formValid, setFormValid] = useState(true);
 
-  const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
-    setNodeName(e.target.value as string);
+  // const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.value.length > 5) {
+  //     setFormValid(true);
+  //   } else setFormValid(false);
+  //   setValue(e.target.value as string);
+  // };
+
+  const handleChangeNode = (e: SelectChangeEvent) => {
+    setNode(e.target.value as string);
   };
 
-  const handleChangeArea = (e: SelectChangeEvent) => {
-    setArea(e.target.value as string);
+  const handleChangeDescription = (e: ChangeEvent<HTMLInputElement>) => {
+    setDescription(e.target.value as string);
   };
 
   const handleAdd = async () => {
-    const result = await journalStore.addNode(nodeName, JSON.parse(area));
+    const result = await journalStore.addRecord(
+      JSON.parse(node),
+      authStore.user,
+      Date.now(),
+      description
+    );
     if (result) onClose();
   };
-
-  useEffect(() => {
-    if (nodeName.length > 5 && area.length > 0) {
-      setFormValid(true);
-    } else {
-      setFormValid(false);
-    }
-  }, [nodeName, area]);
 
   return (
     <Dialog onClose={onClose} open={open} maxWidth="xs">
@@ -60,41 +65,38 @@ const AddNodeForm: FC<DialogProps> = (props) => {
             <Avatar sx={{ bgcolor: blue[700] }}>
               <PlaylistAddIcon />
             </Avatar>
-            <Typography>
-              Укажите имя и зону для нового технологического узла:
-            </Typography>
+            <Typography>Укажите необходимую производственную зону</Typography>
           </Stack>
         </DialogContentText>
         <Stack spacing={2} mt={3}>
-          <TextField
-            label="Имя узла"
-            onChange={handleChangeName}
-            multiline
-            maxRows={5}
-            autoFocus
-          />
           <FormControl fullWidth>
             <InputLabel id="area-select-label">Зона</InputLabel>
             <Select
               labelId="area-select-label"
               id="area-select"
-              value={area || ""}
+              value={node || ""}
               label="Зона"
-              onChange={handleChangeArea}
+              onChange={handleChangeNode}
             >
-              {journalStore.areaStore.areas.map((area) => (
+              {journalStore.nodeStore.nodes.map((node) => (
                 <MenuItem
-                  key={area._id}
+                  key={node._id}
                   value={JSON.stringify({
-                    _id: area._id,
-                    value: area.value,
+                    _id: node._id,
+                    value: node.value,
                   })}
                 >
-                  {area.value}
+                  {node.value}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+          <TextField
+            label="Пояснение"
+            onChange={handleChangeDescription}
+            multiline
+            maxRows={5}
+          />
         </Stack>
         <DialogActions sx={{ mt: 3, ml: 1 }}>
           <Button onClick={onClose}>Отмена</Button>
@@ -107,4 +109,4 @@ const AddNodeForm: FC<DialogProps> = (props) => {
   );
 };
 
-export default AddNodeForm;
+export default AddRecordForm;

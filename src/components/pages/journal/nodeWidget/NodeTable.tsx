@@ -1,6 +1,6 @@
 import { FC, Fragment, useContext } from "react";
-import { INode } from "../../../store/Interfaces";
-import { Context } from "../../..";
+import { INode } from "../../../../store/Interfaces";
+import { Context } from "../../../..";
 import { observer } from "mobx-react-lite";
 import { List } from "@mui/material";
 import NodeItem from "./NodeItem";

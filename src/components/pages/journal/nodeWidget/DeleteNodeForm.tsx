@@ -1,6 +1,6 @@
 import { FC, useContext } from "react";
-import { Context } from "../../..";
-import { IArea } from "../../../store/Interfaces";
+import { Context } from "../../../..";
+import { INode } from "../../../../store/Interfaces";
 import {
   Avatar,
   Button,
@@ -17,15 +17,15 @@ import { red } from "@mui/material/colors";
 interface DialogProps {
   onClose: () => void;
   open: boolean;
-  area: IArea;
+  node: INode;
 }
 
-const DeleteAreaForm: FC<DialogProps> = (props) => {
-  const { onClose, open, area } = props;
+const DeleteNodeForm: FC<DialogProps> = (props) => {
+  const { onClose, open, node } = props;
   const { journalStore } = useContext(Context);
 
   const handleDelete = async () => {
-    const result = await journalStore.delArea(area);
+    const result = await journalStore.delNode(node);
     if (result) onClose();
   };
 
@@ -38,9 +38,9 @@ const DeleteAreaForm: FC<DialogProps> = (props) => {
               <DeleteForeverIcon />
             </Avatar>
             <Typography component={"span"}>
-              Вы действительно хотите удалить зону: {" "}
+              Вы действительно хотите удалить узел: {" "}
               <Typography sx={{ fontWeight: "bold" }} component={"span"}>
-                {area.value}
+                {node.value}
               </Typography>
               ?
             </Typography>
@@ -57,4 +57,4 @@ const DeleteAreaForm: FC<DialogProps> = (props) => {
   );
 };
 
-export default DeleteAreaForm;
+export default DeleteNodeForm;
